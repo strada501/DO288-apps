@@ -13,7 +13,7 @@ pipeline {
         DEV_PROJECT = "mjtacf-books-dev"
         STAGE_PROJECT = "mjtacf-books-stage"
         APP_GIT_URL = "https://github.com/strada501/DO288-apps"
-        NEXUS_SERVER = "http://nexus-common.apps45.prod.nextcle.com/repository/nodejs"
+        NEXUS_SERVER = "http://nexus-common.apps.ap45.prod.nextcle.com/repository/nodejs"
 
         // DO NOT CHANGE THE GLOBAL VARS BELOW THIS LINE
         APP_NAME = "books"
