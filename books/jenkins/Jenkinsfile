@@ -63,6 +63,7 @@ pipeline {
                         --build-env npm_config_registry=${NEXUS_SERVER} \
                         --context-dir ${APP_NAME}
                         oc expose svc ${APP_NAME}
+                   '''
             }
         }
 
