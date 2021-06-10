@@ -13,7 +13,7 @@ pipeline {
         DEV_PROJECT = "mjtacf-movies-dev"
         STAGE_PROJECT = "mjtacf-movies-stage"
         APP_GIT_URL = "https://github.com/strada501/DO288-apps"
-        NEXUS_SERVER = "http://nexus-common.apps.ap45.prod.nextcle.com/repository/java"
+        NEXUS_SERVER = "http://nexus-common.apps.ap45.nextcle.com/repository/java"
 
         // DO NOT CHANGE THE GLOBAL VARS BELOW THIS LINE
         APP_NAME = "movies"
@@ -81,20 +81,24 @@ pipeline {
                     }
                 }
                 sh '''
-                       oc new-app --as-deployment-config ${APP_NAME}:latest -n ${DEV_PROJECT}
-                       oc expose svc/${APP_NAME} -n ${DEV_PROJECT}
+                        oc new-app  --as-deployment-config ${APP_NAME}:latest -n ${DEV_PROJECT}
+                        oc expose svc/${APP_NAME} -n ${DEV_PROJECT}
                    '''
             }
         }
 
         stage('Wait for deployment in DEV env') {
-           openshift.witCluster() {
-               openshift.withProject( '${DEV_PROJECT}' ) {
-                   openshift.selector('dc', ${APP_NAME}).related('pods').untilEach(1) {
-                       return (it.object().status.phase == "Running")
-                   }
-               }
-           }
+            steps {
+                script {
+                    openshift.withCluster() {
+                        openshift.withProject( "${DEV_PROJECT}" ) {
+                            openshift.selector("dc", "${APP_NAME}").related('pods').untilEach(1) {
+                                return (it.object().status.phase == "Running")
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         stage('Promote to Staging Env') {
@@ -104,7 +108,7 @@ pipeline {
                 }
                 script {
                     openshift.withCluster() {
-                        openshift.tag("${DEV_PROJECT}/${APP_NAME}:latest", "${STAGE_PROJECT}/${APP_NAME}:stage"
+                    openshift.tag("${DEV_PROJECT}/${APP_NAME}:latest", "${STAGE_PROJECT}/${APP_NAME}:stage")
                     }
                 }
             }
@@ -122,7 +126,7 @@ pipeline {
                 echo '### Creating a new app in Staging ###'
                 sh '''
                         oc project ${STAGE_PROJECT}
-                        oc new-app --as-deployment-config --name ${APP_NAME} -i ${STAGE_PROJECT}/${{APP_NAME}:stage
+                        oc new-app  --as-deployment-config --name ${APP_NAME} -i ${APP_NAME}:stage
                         oc expose svc/${APP_NAME}
                    '''
             }
